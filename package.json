@@ -7,10 +7,10 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OWNER/walkthrough-video.git"
+    "url": "git+https://github.com/Ranguana/walkthrough-video.git"
   },
-  "homepage": "https://github.com/OWNER/walkthrough-video#readme",
-  "bugs": "https://github.com/OWNER/walkthrough-video/issues",
+  "homepage": "https://github.com/Ranguana/walkthrough-video#readme",
+  "bugs": "https://github.com/Ranguana/walkthrough-video/issues",
   "keywords": [
     "claude-code",
     "agent-skill",

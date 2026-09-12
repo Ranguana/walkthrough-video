@@ -10,7 +10,7 @@
       "version": "0.1.0",
       "author": { "name": "Jessica Wilson" },
       "category": "productivity",
-      "homepage": "https://github.com/OWNER/walkthrough-video",
+      "homepage": "https://github.com/Ranguana/walkthrough-video",
       "keywords": ["walkthrough", "screencast", "demo-video", "playwright", "ffmpeg", "electron"]
     }
   ]

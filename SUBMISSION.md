@@ -50,18 +50,18 @@ Before pushing, replace the `OWNER` placeholders:
 - `package.json` → `repository.url`, `homepage`, `bugs`
 - `.claude-plugin/plugin.json` → `homepage`, `repository`
 - `.claude-plugin/marketplace.json` → `plugins[0].homepage`
-- `README.md` → the two `https://github.com/<owner>/...` clone URLs
+- `README.md` → the two `https://github.com/Ranguana/...` clone URLs
 
 ```bash
-grep -rn 'OWNER\|<owner>' --exclude-dir=node_modules .
+grep -rn "OWNER" --exclude-dir=node_modules .
 ```
 
 Once it is public it is immediately usable three ways:
 
 ```bash
-git clone https://github.com/OWNER/walkthrough-video ~/.claude/skills/walkthrough-video   # plain skill install
-npx skills add OWNER/walkthrough-video                                                     # skills.sh CLI
-/plugin marketplace add OWNER/walkthrough-video                                            # as a plugin marketplace
+git clone https://github.com/Ranguana/walkthrough-video ~/.claude/skills/walkthrough-video   # plain skill install
+npx skills add Ranguana/walkthrough-video                                                     # skills.sh CLI
+/plugin marketplace add Ranguana/walkthrough-video                                            # as a plugin marketplace
 ```
 
 **skills.sh** (https://skills.sh, run by Vercel, CLI at https://github.com/vercel-labs/skills) has **no submission form
@@ -206,7 +206,7 @@ Use`, `## Example`, `**Inspired by:**`). Only worth it if you are willing to kee
 
 > **Name:** walkthrough-video
 >
-> **Repository:** https://github.com/OWNER/walkthrough-video
+> **Repository:** https://github.com/Ranguana/walkthrough-video
 >
 > **What it does:** Records a narrated product walkthrough video of a website, web app, or Electron desktop app, entirely
 > from the command line — no screen recorder and no video editor. The author describes the video as a list of "beats" (a
@@ -241,7 +241,7 @@ Use`, `## Example`, `**Inspired by:**`). Only worth it if you are willing to kee
 
 > **Resource name:** walkthrough-video
 > **Category:** Skills
-> **Link:** https://github.com/OWNER/walkthrough-video
+> **Link:** https://github.com/Ranguana/walkthrough-video
 > **License:** MIT
 > **Description:** Records a narrated product walkthrough video of a website, web app, or Electron desktop app from a
 > beats file, using Playwright, a text-to-speech voice and ffmpeg.
@@ -253,12 +253,12 @@ Add to `.claude-plugin/marketplace.json` under `plugins`:
 ```json
 {
   "name": "walkthrough-video",
-  "source": { "source": "github", "repo": "OWNER/walkthrough-video" },
+  "source": { "source": "github", "repo": "Ranguana/walkthrough-video" },
   "description": "Record a narrated product walkthrough video of a website, web app, or Electron desktop app: scripted Playwright recording, per-beat voice-over, burned-in captions, thumbnail, and a QA pass.",
   "version": "0.1.0",
   "author": { "name": "Jessica Wilson" },
   "category": "productivity",
-  "homepage": "https://github.com/OWNER/walkthrough-video",
+  "homepage": "https://github.com/Ranguana/walkthrough-video",
   "keywords": ["walkthrough", "screencast", "demo-video", "playwright", "ffmpeg", "electron"]
 }
 ```
@@ -275,6 +275,6 @@ and makes no network calls beyond the recorded page and the user's own ElevenLab
 - [x] `claude plugin validate .` passes
 - [x] Pipeline self-tested end to end on the no-key path
 - [x] No committed media; `examples/` documents expected output instead
-- [ ] `OWNER` placeholders replaced with the real GitHub owner
+- [x] Repository owner set to `Ranguana`
 - [ ] Repo pushed public
 - [ ] Plugin submitted at https://platform.claude.com/plugins/submit

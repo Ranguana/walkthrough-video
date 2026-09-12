@@ -57,11 +57,11 @@ Claude Code loads personal skills from `~/.claude/skills/<name>/` (every repo) a
 
 ```bash
 # global — available in every repo
-git clone https://github.com/<owner>/walkthrough-video ~/.claude/skills/walkthrough-video
+git clone https://github.com/Ranguana/walkthrough-video ~/.claude/skills/walkthrough-video
 cd ~/.claude/skills/walkthrough-video && npm install && npx playwright install chromium
 
 # or per project
-git clone https://github.com/<owner>/walkthrough-video .claude/skills/walkthrough-video
+git clone https://github.com/Ranguana/walkthrough-video .claude/skills/walkthrough-video
 cd .claude/skills/walkthrough-video && npm install && npx playwright install chromium
 ```
 
