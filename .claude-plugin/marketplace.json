@@ -1,0 +1,17 @@
+{
+  "name": "walkthrough-video",
+  "description": "A single-skill marketplace: the walkthrough-video Agent Skill.",
+  "owner": { "name": "Jessica Wilson" },
+  "plugins": [
+    {
+      "name": "walkthrough-video",
+      "source": "./",
+      "description": "Record a narrated product walkthrough video of a website, web app, or Electron desktop app.",
+      "version": "0.1.0",
+      "author": { "name": "Jessica Wilson" },
+      "category": "productivity",
+      "homepage": "https://github.com/OWNER/walkthrough-video",
+      "keywords": ["walkthrough", "screencast", "demo-video", "playwright", "ffmpeg", "electron"]
+    }
+  ]
+}

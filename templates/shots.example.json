@@ -1,0 +1,7 @@
+[
+ {"beat": "C1-integration", "shots": [
+  {"src": "stills/integrations.png", "halo": [64, 551], "hold": 4.0, "note": "Integrations nav item"},
+  {"src": "stills/integrations.png", "halo": [485, 161], "hold": 4.5, "note": "Connected badge"},
+  {"src": "stills/integrations.png", "hold": 3.5, "fit": "card", "note": "hold on the connected state"}
+ ]}
+]

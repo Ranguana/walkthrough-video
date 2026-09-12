@@ -1,0 +1,38 @@
+{
+  "name": "walkthrough-video",
+  "version": "0.1.0",
+  "description": "Claude Code Agent Skill: record a narrated product walkthrough video of a website, web app, or Electron desktop app (Playwright + ElevenLabs or macOS say + ffmpeg)",
+  "license": "MIT",
+  "author": "Jessica Wilson",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OWNER/walkthrough-video.git"
+  },
+  "homepage": "https://github.com/OWNER/walkthrough-video#readme",
+  "bugs": "https://github.com/OWNER/walkthrough-video/issues",
+  "keywords": [
+    "claude-code",
+    "agent-skill",
+    "walkthrough",
+    "screencast",
+    "demo-video",
+    "playwright",
+    "ffmpeg",
+    "elevenlabs",
+    "electron"
+  ],
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "tts": "node scripts/tts.mjs",
+    "record": "node scripts/record.mjs",
+    "assemble": "node scripts/assemble.mjs",
+    "qa": "node scripts/qa.mjs",
+    "stills": "node scripts/stills.mjs",
+    "install-browser": "playwright install chromium"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "playwright": "^1.58.0"
+  }
+}

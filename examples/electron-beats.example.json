@@ -1,0 +1,28 @@
+[
+ {
+  "id": "01-window",
+  "screen": "The app's main window on launch",
+  "text": "The app opens on the library… everything here is loaded by the main process, so it only exists in the real app.",
+  "actions": [
+   { "waitFor": "h1", "timeout": 30 },
+   { "mouse": [960, 540] },
+   { "wait": 1.5 },
+   { "hover": "h1", "for": 1.2 },
+   { "scroll": 320 },
+   { "wait": 1.0 }
+  ]
+ },
+ {
+  "id": "02-close",
+  "screen": "Settings pane, then the closing card",
+  "text": "Open settings from the sidebar… and that is the tour.",
+  "pad": 1.5,
+  "actions": [
+   { "click": { "role": "button", "name": "Settings" } },
+   { "waitFor": "text=Preferences" },
+   { "hover": { "role": "checkbox" }, "for": 1.5 },
+   { "holdNarration": 0.6 },
+   { "card": { "brand": "Example App", "line": "This is a product demonstration with sample data.", "sub": "Recorded from the desktop app · fictional data" } }
+  ]
+ }
+]

@@ -1,0 +1,26 @@
+[
+ {
+  "id": "01-landing",
+  "screen": "example.com landing page",
+  "text": "This is example dot com… the domain the standards bodies reserve for documentation.",
+  "actions": [
+   { "goto": "/", "waitUntil": "networkidle" },
+   { "mouse": [960, 500] },
+   { "hover": "h1", "for": 1.2 },
+   { "hover": { "role": "link" }, "for": 1.0 }
+  ]
+ },
+ {
+  "id": "02-close",
+  "screen": "The registry's explanation page, then the closing card",
+  "text": "The registry explains why it exists. That is the whole walkthrough.",
+  "pad": 1.2,
+  "actions": [
+   { "goto": "https://www.iana.org/help/example-domains", "waitUntil": "networkidle" },
+   { "scroll": 260 },
+   { "wait": 1.0 },
+   { "holdNarration": 0.5 },
+   { "card": { "line": "Recorded with the walkthrough-video skill.", "url": "example.com", "sub": "Public page · no signup · nothing is saved" } }
+  ]
+ }
+]

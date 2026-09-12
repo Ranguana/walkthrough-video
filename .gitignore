@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# credentials — never commit these
+.env
+.env.*
+!.env.example
+
+# walkthrough output (takes, narration, intermediates, deliverables)
+walkthrough-out/
+out/
+takes/
+vo/
+build/
+deliverables/
+qa/
+stills/
+state.json
+
+# media
+*.mp4
+*.webm
+*.mov
+*.wav
+*.mp3
+*.m4a
+*.aiff
+*.srt
+
+# macOS
+.DS_Store

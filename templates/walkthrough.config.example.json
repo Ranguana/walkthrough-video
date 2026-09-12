@@ -1,0 +1,37 @@
+{
+  "name": "example-demo",
+  "target": { "type": "web", "baseUrl": "https://example.com" },
+  "viewport": { "width": 1920, "height": 1080 },
+  "fps": 30,
+  "framesFps": 8,
+  "outDir": "walkthrough-out",
+  "beats": "beats.json",
+  "envFile": ".env.local",
+  "storageState": null,
+  "voLead": 0.5,
+  "tail": 0.8,
+  "pad": 0.8,
+  "dialogs": "accept",
+  "halo": { "color": "214, 93, 30", "size": 34 },
+  "voice": {
+    "label": "Product Narrator",
+    "engine": null,
+    "sayVoice": "Samantha",
+    "sayRate": 175,
+    "modelId": "eleven_multilingual_v2",
+    "outputFormat": "mp3_44100_128",
+    "settings": { "stability": 0.45, "similarity_boost": 0.75, "style": 0.15, "use_speaker_boost": true },
+    "maxChars": 6000,
+    "humanizeUrls": true
+  },
+  "spokenMap": [
+    ["\\bAPI\\b", "A P I"],
+    ["\\bSKU-(\\d+)\\b", "S K U $1"],
+    ["\\bthat is\\b", "that's"],
+    ["\\bdid not\\b", "didn't"]
+  ],
+  "captions": { "burnIn": true, "maxChars": 70, "fontSize": 27 },
+  "card": { "brand": "Example", "accent": "#f0b48a", "background": "rgba(20,18,16,0.94)" },
+  "thumbnail": { "beat": "03-result", "offset": 2.4, "brand": "Example", "badge": "Product demo", "title": "The whole flow. One pass." },
+  "stills": null
+}

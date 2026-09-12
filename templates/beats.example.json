@@ -1,0 +1,86 @@
+[
+ {
+  "id": "01-hook",
+  "screen": "Landing page",
+  "text": "Every import starts the same way: export a file from the old system… then fix the columns by hand. Example does both for you.",
+  "pad": 1.2,
+  "actions": [
+   { "goto": "/", "waitUntil": "networkidle" },
+   { "mouse": [960, 600] },
+   { "wait": 3.0 },
+   { "scroll": 520 },
+   { "wait": 2.5 },
+   { "scroll": "top" },
+   { "hover": { "role": "link", "name": "Demo", "exact": true }, "for": 1.0 }
+  ]
+ },
+ {
+  "id": "02-upload",
+  "screen": "Demo — upload step",
+  "text": "This is the public demo… a fictional sample file. No real customer data, and nothing is saved. You would upload your own export here. For the demo, we will use the sample.",
+  "actions": [
+   { "click": { "role": "link", "name": "Demo", "exact": true } },
+   { "waitFor": "text=Use sample" },
+   { "mouse": [900, 500] },
+   { "wait": 2.0 },
+   { "hover": "h1", "for": 1.5 },
+   { "hover": { "role": "button", "name": "Use sample" }, "for": 0.5 },
+   { "holdNarration": 0.8 },
+   { "click": { "role": "button", "name": "Use sample" } },
+   { "waitFor": "h1:has-text(\"Review\")" },
+   { "scroll": "top", "after": 0 }
+  ]
+ },
+ {
+  "id": "03-review",
+  "screen": "Review step — parsed fields and the raw-vs-clean comparison",
+  "text": "Example reads the file and pulls out every field. Here the export wrote the capital I in ITEM as a lowercase L… Example caught it before it reached your records.",
+  "actions": [
+   { "wait": 1.0 },
+   { "hover": "input >> nth=0", "for": 1.4 },
+   { "hover": "input >> nth=1", "for": 1.3 },
+   { "hover": "textarea >> nth=0", "fy": 0.3, "for": 1.2 },
+   { "scrollEl": "textarea >> nth=0", "top": 140, "after": 1.2 },
+   { "scrollIntoView": "h2:has-text(\"Comparison\")", "offset": 60 },
+   { "zoom": 1.4 },
+   { "highlight": { "within": "h2:has-text(\"Comparison\") >> xpath=following::*[1]", "needles": ["lTEM"] } },
+   { "hover": "mark.__hl >> nth=0", "for": 3.0 },
+   { "holdNarration": 0.6 },
+   { "unhighlight": true },
+   { "zoom": 1 },
+   { "click": { "role": "button", "name": "Continue" } },
+   { "waitFor": "h1:has-text(\"Settings\")" },
+   { "scroll": "top", "after": 0 }
+  ]
+ },
+ {
+  "id": "04-select-and-confirm",
+  "screen": "Settings — a native select and a confirm() dialog",
+  "text": "Pick the destination from the list… and confirm. Headless Chromium never paints native menus or dialogs, so the recorder draws the menu itself and answers the dialog for you.",
+  "actions": [
+   { "select": "#destination", "value": "warehouse", "menu": true, "hoverValues": ["staging", "archive"] },
+   { "dialog": "accept" },
+   { "click": { "role": "button", "name": "Reset form" } },
+   { "wait": 1.0 },
+   { "type": "#email", "env": "DEMO_LOGIN_EMAIL", "delay": 0.022 },
+   { "type": "#password", "env": "DEMO_LOGIN_PASSWORD", "delay": 0.018 },
+   { "screenshot": "settings-filled" }
+  ]
+ },
+ {
+  "id": "C1-integration",
+  "kind": "stills",
+  "screen": "Integrations page (captured in the user's own Chrome; see shots.example.json)",
+  "text": "If your team already runs on another system, connect it once from Integrations… and that is the whole setup."
+ },
+ {
+  "id": "05-close",
+  "screen": "Closing card",
+  "text": "This is a product demonstration with sample data. Try it yourself at example.com/demo. No signup needed.",
+  "pad": 2.5,
+  "actions": [
+   { "scroll": "top" },
+   { "card": { "brand": "Example", "line": "This is a product demonstration with sample data.", "url": "example.com/demo", "sub": "Fictional sample data · no signup · nothing is saved" } }
+  ]
+ }
+]
