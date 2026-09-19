@@ -302,7 +302,7 @@ See `examples/electron-beats.example.json` for a two-beat Electron beats file.
 
 ## Checklist before publishing
 
-- Fictional data only, and the narration says so. No real names, addresses, account ids, emails, or customer records.
+- Fictional data only. No real names, addresses, account ids, emails, or customer records.
 - The closing beat carries the limitation your product needs, **spoken** as well as on the card: "This is a product
   demonstration, not <advice>." See `templates/narration-style.md` for regulated-industry notes (the legal example there
   is a worked case, not a requirement).
