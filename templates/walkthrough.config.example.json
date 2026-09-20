@@ -33,5 +33,11 @@
   "captions": { "burnIn": true, "maxChars": 70, "fontSize": 27 },
   "card": { "brand": "Example", "accent": "#f0b48a", "background": "rgba(20,18,16,0.94)" },
   "thumbnail": { "beat": "03-result", "offset": 2.4, "brand": "Example", "badge": "Product demo", "title": "The whole flow. One pass." },
+  "brand": {
+    "headingFont": null,
+    "bodyFont": null,
+    "fontCss": [],
+    "fontFiles": []
+  },
   "stills": null
 }
