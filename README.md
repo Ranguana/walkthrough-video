@@ -25,7 +25,7 @@ deliverables/
   <name>.mp4              1920x1080, H.264 30 fps, AAC 48 kHz — upload this, attach the SRT
   <name>-captioned.mp4    same cut with burned-in captions, for players that cannot load an SRT
   <name>.srt              captions timed per sentence from the real clip lengths
-  thumbnail.png           a frame from a beat you choose, with an optional title band
+  thumbnail.png           a frame from a beat you choose, with an optional title band — set in the app's own fonts
   narration-script.txt    what the voice actually read
   README.md               beat table, runtime, re-render commands, compliance notes
 ```
@@ -125,6 +125,12 @@ That produces a ~12 second video. Then edit `beats.json` and re-run — `tts.mjs
 
 Each beat is held on screen for at least `voLead + dur + pad`, so the picture always outlasts the sentence. Because
 `assemble.mjs` freezes frames rather than speeding audio, you can rewrite narration all day without touching the take.
+
+**Brand fonts.** The thumbnail title and burned-in captions match the recorded app's typography: `record.mjs` reads the
+heading and body font stacks, Google Fonts links and `@font-face` rules from the first loaded page into
+`takes/takeN/brand.json`, and `assemble.mjs` renders with them (uppercase and letter-spacing included). Override with
+`"brand": { "headingFont", "bodyFont", "fontCss": [...], "fontFiles": [...] }` in the config; with nothing found it falls
+back to Georgia / Helvetica exactly as before. `scripts/brand.mjs` adds a `brand.json` to an existing take.
 
 ## Beats file reference
 
@@ -233,6 +239,7 @@ walkthrough-video/
     assemble.mjs    take + vo -> deliverables/                                       (ffmpeg)
     qa.mjs          per-beat frames, speech-onset check, duration match
     stills.mjs      screenshots + shots.json -> a silent clip assemble.mjs splices in
+    brand.mjs       probe the app's fonts into takes/takeN/brand.json without recording (record.mjs does this itself)
   templates/
     walkthrough.config.example.json
     beats.example.json          a full 6-beat walkthrough showing every action type

@@ -28,6 +28,7 @@
     "record": "node scripts/record.mjs",
     "assemble": "node scripts/assemble.mjs",
     "qa": "node scripts/qa.mjs",
+    "brand": "node scripts/brand.mjs",
     "stills": "node scripts/stills.mjs",
     "install-browser": "playwright install chromium"
   },

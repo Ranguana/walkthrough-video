@@ -15,7 +15,7 @@ script, ffmpeg lines the narration up with the picture, burns captions, makes a 
 timing. Everything is driven by two files in the project: `walkthrough.config.json` and `beats.json`. The scripts in this
 skill folder are generic; nothing about the target is hard-coded.
 
-Skill folder: `~/.claude/skills/walkthrough-video/` (referred to below as `$SKILL`). Scripts: `$SKILL/scripts/{record,tts,assemble,qa,stills}.mjs`.
+Skill folder: `~/.claude/skills/walkthrough-video/` (referred to below as `$SKILL`). Scripts: `$SKILL/scripts/{record,tts,assemble,qa,stills,brand}.mjs`.
 
 ## Prerequisites (check once per machine)
 
@@ -180,11 +180,37 @@ node $SKILL/scripts/assemble.mjs --config walkthrough.config.json [--take N] [--
 4. Places each beat's clip **0.5 s after its first frame** (`voLead`), mixes, muxes → `deliverables/<name>.mp4`.
 5. Captions: `<name>.srt` timed per sentence/clause from the clip lengths, and `<name>-captioned.mp4` with burned-in
    captions (PNG overlays rendered with Playwright — no libass needed).
-6. `thumbnail.png` (frame from `thumbnail.beat` + optional title band), `narration-script.txt`, and a `README.md` with
-   the beat table, re-render commands and compliance notes.
+6. `thumbnail.png` (frame from `thumbnail.beat` + optional title band, set in the app's own fonts — see "Brand fonts"),
+   `narration-script.txt`, and a `README.md` with the beat table, re-render commands and compliance notes.
 
 The summary prints per-beat slack; "TIGHT" means the tail is under `tail` seconds — usually fine, but re-record if motion
 was cut off.
+
+#### Brand fonts
+
+The thumbnail title and the burned-in captions are set in the **recorded app's own typography**, automatically.
+`record.mjs` probes the first loaded page (web: after the first `goto`; Electron: as soon as the window is up) and writes
+`takes/takeN/brand.json`: the computed `font-family` / weight / `text-transform` / `letter-spacing` of the first `h1`
+(fallback `h2`, then `body`), the body font, any `fonts.googleapis.com` stylesheets, every `@font-face` rule from a
+same-origin stylesheet with its `src` URLs made absolute (this is how `next/font` self-hosted fonts are picked up), and
+`document.fonts`. Discovery never fails a take — an error lands in `notes.json` as a warning and `brand.json` gets nulls.
+
+`assemble.mjs` then injects those stylesheets and `@font-face` rules into its render pages (font files are downloaded once,
+inlined as data URIs, cached in `build/fonts/`), waits for `document.fonts.ready`, and renders the title in the heading
+font — honouring the app's uppercase / letter-spacing — and the captions in the body font. The summary prints one line:
+`fonts: heading "Bebas Neue" (discovered) · body "Lato" (discovered)`; `(fallback)` means Georgia / Helvetica as before.
+
+Override or supply the fonts in the config — everything optional, config wins over discovery:
+
+```json
+"brand": { "headingFont": "Bebas Neue", "bodyFont": "Lato",
+           "fontCss": ["https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lato:wght@400;700&display=swap"],
+           "fontFiles": ["fonts/BebasNeue-Regular.woff2", { "family": "Lato", "weight": 700, "file": "fonts/Lato-Bold.woff2" }],
+           "headingTransform": "uppercase", "headingLetterSpacing": "0.02em", "headingWeight": 400 }
+```
+
+A take recorded before brand discovery existed has no `brand.json`; add one without re-recording:
+`node $SKILL/scripts/brand.mjs --config walkthrough.config.json [--take N]`, then re-run `assemble.mjs`.
 
 ### (f) QA
 
@@ -202,7 +228,7 @@ once end to end. Fix, re-run the stage that changed, re-assemble, re-QA.
 
 ```
 <outDir>/
-  takes/takeN/raw.webm | frames/, timings.json, notes.json     the recording (keep the chosen take; ignore the rest)
+  takes/takeN/raw.webm | frames/, timings.json, notes.json, brand.json   the recording + the app's fonts (keep the chosen take)
   vo/<id>.wav, vo/src/<id>.{mp3,aiff} + .json, narration-spoken.txt   narration + cache
   stills/                                             still-frame beat (when used)
   build/                                              intermediates, timings-final.json

@@ -5,6 +5,8 @@
 //   4. place each beat's narration voLead seconds after the beat's first frame, mix, mux
 //   5. captions: SRT (timed per sentence/clause from the clip lengths) + a burned-in variant (PNG overlays, works without libass)
 //   6. thumbnail (frame + optional title overlay) and a deliverables README.md
+// Captions and the thumbnail title are set in the recorded app's own fonts: takes/takeN/brand.json (written by record.mjs
+// or brand.mjs) merged with "brand" in the config (config wins). No brand.json and no brand config = Georgia / Helvetica as before.
 //
 // Usage:  node assemble.mjs --config walkthrough.config.json [--take N|path] [--insert clip.mp4 --insert-timings t.json --before beatId] [--no-captions]
 //   --take          which take (default: the latest under <outDir>/takes/)
@@ -15,7 +17,7 @@
 //          <name>.srt, thumbnail.png, narration-script.txt, README.md
 import fs from 'fs';
 import path from 'path';
-import { args, loadConfig, readBeats, resolveTake, readJson, writeJson, sh, q, probeDur, fmtClock, escHtml } from './lib.mjs';
+import { args, loadConfig, readBeats, resolveTake, readJson, writeJson, sh, q, probeDur, fmtClock, escHtml, resolveBrand, brandFontHtml } from './lib.mjs';
 
 const cfg = loadConfig(args.config);
 const beats = readBeats(cfg);
@@ -27,6 +29,16 @@ const name = cfg.name || 'walkthrough';
 const VO_LEAD = cfg.voLead, TAIL = cfg.tail, FPS = cfg.fps;
 const enc = `-r ${FPS} -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -movflags +faststart`;
 const ff = (c) => sh(`ffmpeg -y -loglevel error ${c}`, { echo: true });
+
+// Brand fonts for the Playwright-rendered overlays (captions, thumbnail). Fetched lazily: nothing is downloaded unless
+// a render page is actually made. Font files are inlined as data: URIs and cached under build/fonts/.
+const brand = resolveBrand(cfg, take);
+let fontHtmlCache = null;
+const fontHtml = async () => (fontHtmlCache ??= await brandFontHtml(brand, path.join(build, 'fonts')));
+const HEAD_FALLBACK = 'Georgia,"Times New Roman",serif', BODY_FALLBACK = '"Helvetica Neue",Helvetica,Arial,sans-serif';
+const headStack = brand.heading.family ? `${brand.heading.family},${HEAD_FALLBACK}` : HEAD_FALLBACK;
+const bodyStack = brand.body.family ? `${brand.body.family},${BODY_FALLBACK}` : BODY_FALLBACK;
+const fontsReady = (p) => p.evaluate(() => (document.fonts ? document.fonts.ready.then(() => undefined) : undefined));
 
 let timings = readJson(path.join(take, 'timings.json'));
 const order = () => { timings.sort((a, b) => a.start - b.start); return Object.fromEntries(timings.map(t => [t.id, t.start])); };
@@ -141,8 +153,10 @@ if (cfg.captions.burnIn && !args['no-captions'] && cues.length) {
   const dir = path.join(build, 'caps'); fs.mkdirSync(dir, { recursive: true });
   const { chromium } = await import('playwright');
   const br = await chromium.launch(); const p = await br.newPage({ viewport: cfg.viewport, deviceScaleFactor: 1 });
+  const fonts = await fontHtml();
   for (let i = 0; i < cues.length; i++) {
-    await p.setContent(`<style>html,body{margin:0;background:transparent}.cap{position:fixed;left:50%;bottom:46px;transform:translateX(-50%);max-width:${Math.round(cfg.viewport.width * 0.78)}px;background:rgba(12,10,9,0.78);color:#fff;font:500 ${cfg.captions.fontSize}px/1.35 "Helvetica Neue",Helvetica,Arial,sans-serif;padding:12px 26px;border-radius:9px;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.6)}</style><div class="cap">${escHtml(cues[i].text)}</div>`);
+    await p.setContent(`${fonts}<style>html,body{margin:0;background:transparent}.cap{position:fixed;left:50%;bottom:46px;transform:translateX(-50%);max-width:${Math.round(cfg.viewport.width * 0.78)}px;background:rgba(12,10,9,0.78);color:#fff;font:500 ${cfg.captions.fontSize}px/1.35 ${bodyStack};padding:12px 26px;border-radius:9px;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.6)}</style><div class="cap">${escHtml(cues[i].text)}</div>`);
+    await fontsReady(p);
     await p.screenshot({ path: path.join(dir, `c${i}.png`), omitBackground: true });
   }
   await br.close();
@@ -164,14 +178,19 @@ if (th.title) {
   const { chromium } = await import('playwright');
   const br = await chromium.launch(); const p = await br.newPage({ viewport: cfg.viewport, deviceScaleFactor: 1 });
   const b64 = fs.readFileSync(thumbSrc).toString('base64');
-  await p.setContent(`<style>html,body{margin:0;width:${cfg.viewport.width}px;height:${cfg.viewport.height}px;overflow:hidden;background:#f6f3ee}
+  // Title typography follows the app: heading font stack, plus its weight / text-transform / letter-spacing when known.
+  const hb = brand.heading;
+  const titleCss = [`font-size:74px`, `line-height:1.12`, `letter-spacing:${hb.letterSpacing || '-0.012em'}`, `max-width:1560px`,
+    hb.weight ? `font-weight:${hb.weight}` : '', hb.transform ? `text-transform:${hb.transform}` : ''].filter(Boolean).join(';');
+  await p.setContent(`${await fontHtml()}<style>html,body{margin:0;width:${cfg.viewport.width}px;height:${cfg.viewport.height}px;overflow:hidden;background:#f6f3ee}
     .bg{position:absolute;inset:0;background:url(data:image/png;base64,${b64}) center/cover no-repeat}
     .band{position:absolute;left:0;right:0;bottom:0;height:400px;background:linear-gradient(180deg,rgba(20,18,16,0) 0%,rgba(20,18,16,.88) 38%,rgba(20,18,16,.96) 100%)}
-    .t{position:absolute;left:110px;right:110px;bottom:78px;color:#f6f1ea;font-family:Georgia,"Times New Roman",serif}
+    .t{position:absolute;left:110px;right:110px;bottom:78px;color:#f6f1ea;font-family:${headStack}}
     .brand{font-size:44px;margin-bottom:14px;display:flex;align-items:center;gap:16px}
     .brand span{font:600 15px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;color:${cfg.card.accent};text-transform:uppercase;padding:7px 12px;border:1.5px solid ${cfg.card.accent};border-radius:6px}
-    .h{font-size:74px;line-height:1.12;letter-spacing:-0.012em;max-width:1560px}</style>
+    .h{${titleCss}}</style>
     <div class="bg"></div><div class="band"></div><div class="t">${th.brand ? `<div class="brand">${escHtml(th.brand)}${th.badge ? `<span>${escHtml(th.badge)}</span>` : ''}</div>` : ''}<div class="h">${escHtml(th.title)}</div></div>`);
+  await fontsReady(p);
   await p.screenshot({ path: thumbOut }); await br.close();
 } else fs.copyFileSync(thumbSrc, thumbOut);
 
@@ -220,6 +239,7 @@ fs.writeFileSync(path.join(deliverables, 'README.md'), readme);
 
 // ---------- summary ----------
 console.log(`\n${name}.mp4: ${fmtClock(total)} (${total.toFixed(1)} s), ${cues.length} caption cues`);
+console.log(brand.summary);
 for (let i = 0; i < seq.length; i++) { const b = B[seq[i].id]; if (!b) continue; const next = seq[i + 1]?.start ?? T.end; const slack = next - seq[i].start - VO_LEAD - (b.dur || 0);
   console.log(`  ${fmtClock(seq[i].start).padStart(5)}  ${b.id.padEnd(18)} video ${(next - seq[i].start).toFixed(1).padStart(5)} s  narration ${(b.dur || 0).toFixed(1).padStart(5)} s  slack ${slack.toFixed(1).padStart(5)} s${slack < TAIL - 0.05 ? '  <-- TIGHT' : ''}`); }
 console.log(`deliverables: ${deliverables}`);

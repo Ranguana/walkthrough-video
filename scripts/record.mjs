@@ -1,5 +1,8 @@
 // Records the walkthrough with Playwright: drives the target beat by beat (from beats.json), holds each beat at least as long
 // as its narration + lead + pad, overlays a cursor halo, and writes takes/take<N>/{raw.webm | frames/} + timings.json (+ notes.json).
+// It also writes takes/take<N>/brand.json — the app's own typography (heading/body font stacks, Google Fonts links,
+// @font-face rules) read from the first loaded page, so assemble.mjs can set the thumbnail and captions in the same faces.
+// Discovery never fails a take: an error is noted in notes.json (as a warning) and brand.json is written with nulls.
 //
 // Two targets, set by "target" in walkthrough.config.json:
 //   { "type": "web", "baseUrl": "https://example.com" }                          Chromium page, recorded with Playwright's recordVideo
@@ -50,7 +53,7 @@
 import fs from 'fs';
 import path from 'path';
 import { chromium, _electron } from 'playwright';
-import { args, loadConfig, loadEnv, readBeats, listTakes, takeDir, writeJson } from './lib.mjs';
+import { args, loadConfig, loadEnv, readBeats, listTakes, takeDir, writeJson, discoverBrand } from './lib.mjs';
 
 const cfg = loadConfig(args.config);
 loadEnv(cfg);
@@ -124,6 +127,17 @@ const now = () => (Date.now() - T0) / 1000;
 const timings = [], notes = [];
 let cur = null, beatStart = 0, held = false;
 const sleep = (s) => page.waitForTimeout(Math.max(0, s * 1000));
+
+// ---- brand discovery (once per take) ----
+// Web: right after the first "goto" lands (the first beat's page). Electron: as soon as the window is up. If the first
+// beat never navigates, at the end of that beat. Costs ~100 ms inside the beat, which the hold logic absorbs.
+let brandDone = false;
+const probeBrand = async () => {
+  if (brandDone) return; brandDone = true;
+  const r = await discoverBrand(page, path.join(outDir, 'brand.json'));
+  if (r.error) { notes.push({ beat: cur?.id ?? null, action: 'brand-discovery', warn: r.error }); console.log(`  brand discovery failed (${r.error}); brand.json written with nulls`); }
+  else console.log(`  brand: heading ${JSON.stringify((r.heading?.family || '').split(',')[0].trim())} · body ${JSON.stringify((r.body?.family || '').split(',')[0].trim())} · ${r.fontFaces.length} @font-face, ${r.stylesheets.length} Google Fonts link(s)`);
+};
 
 // ---- frame capture (Electron, or web with --frames) ----
 // Screenshots are slower and less regular than a video encoder, so each frame's real offset is recorded and
@@ -285,12 +299,13 @@ const run = async (a) => {
 
 // ---- main loop ----
 if (FRAMES) { startCapture(); console.log(`capturing frames at ~${FRAMES_FPS} fps into ${framesDir}`); }
+if (IS_ELECTRON) await probeBrand();
 for (const b of beats) {
   cur = b; beatStart = now(); held = false;
   timings.push({ id: b.id, start: +beatStart.toFixed(3) });
   console.log(`beat ${b.id} @ ${beatStart.toFixed(2)}s  (narration ${(b.dur || 0).toFixed(1)}s)`);
   for (const a of b.actions || []) {
-    try { await run(a); }
+    try { await run(a); if (!brandDone && a.goto !== undefined) await probeBrand(); }
     catch (e) {
       const msg = String(e.message || e).split('\n')[0];
       notes.push({ beat: b.id, action: a, error: msg }); console.log(`  ACTION ERROR in ${b.id}: ${msg}  action=${JSON.stringify(a).slice(0, 160)}`);
@@ -298,6 +313,7 @@ for (const b of beats) {
       if (a.required !== false && (a.goto !== undefined || a.waitFor !== undefined || a.waitUrl !== undefined)) { console.log('  navigation/wait failed; continuing with the next beat'); break; }
     }
   }
+  if (!brandDone) await probeBrand();
   if (!held && b.autoHold !== false) await holdBeat();
 }
 timings.push({ id: 'end', start: +now().toFixed(3) });
@@ -321,4 +337,5 @@ if (FRAMES) {
 writeJson(path.join(outDir, 'timings.json'), timings);
 writeJson(path.join(outDir, 'notes.json'), notes);
 console.log(`done: ${captured}  ` + timings.map(t => `${t.id}@${t.start.toFixed(1)}`).join(' '));
-if (notes.length) { console.log(`${notes.length} action error(s) — see ${outDir}/notes.json`); process.exit(1); }
+const errors = notes.filter(n => n.error);   // brand-discovery notes are warnings and never fail the take
+if (errors.length) { console.log(`${errors.length} action error(s) — see ${outDir}/notes.json`); process.exit(1); }
