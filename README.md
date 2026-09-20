@@ -8,6 +8,16 @@ narrates the script, drives the app with Playwright while recording it, lines th
 captions, cuts a thumbnail, and runs a QA pass that proves the timing. Re-narrating a line does not mean re-recording:
 holds stretch to fit.
 
+## Example output
+
+The product walkthrough on the [TallyHi](https://tallyhi.com) homepage was made with this skill — recorded, narrated
+and assembled from a beats file, with no screen-recording app or video editor involved. TallyHi is an Electron desktop
+app, one of the app types the skill supports, and the demo runs entirely on fictional data.
+
+[![TallyHi walkthrough — watch it on tallyhi.com](docs/example-thumbnail.png)](https://tallyhi.com)
+
+*The thumbnail above is the skill's own `thumbnail.png` output. Click it to watch the video.*
+
 ## What you get
 
 ```
